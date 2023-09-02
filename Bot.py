@@ -1,9 +1,11 @@
 import telebot
-from Config import keys, TOKEN
+from Config import keys, TOKEN, cats
 from utils_bot import CriptoConverter, ConvertionException
 from telebot import types
 
+
 bot = telebot.TeleBot(TOKEN)
+cats_counter = 0
 
 
 @bot.message_handler(commands=['start'])
@@ -11,13 +13,31 @@ def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item_helper = types.KeyboardButton("Как использовать бота?🔍")
     item_values = types.KeyboardButton("Какие валюты доступны?🏦")
-    markup.add(item_helper, item_values)
+    item_cats = types.KeyboardButton("Фото котика")
+    markup.add(item_helper, item_values, item_cats)
 
     bot.send_message(message.chat.id, "Привет!!!\nЧто бы начать работу введите команду в след формате:\n<Имя валюты> \
  <В какую валюту перевести> \
  <кол-во переводимой валюты> \
  \n \
 \nПример: Биткоин Доллар 2".format(message.from_user), reply_markup=markup)
+
+
+@bot.message_handler(content_types=['text'])
+def cat(massage: telebot.types.Message):
+    global cats_counter
+    text = " Извините к сожелению котики кончились 😭😢💔\n\
+Но вы можете посмотреть на них eщё раз 😊😊😊"
+    pic = cats[cats_counter]
+    if cats_counter == len(cats) - 1:
+        bot.send_message(massage.chat.id, text)
+        cats_counter = -1
+    if massage.chat.type == 'private':
+        if "Фото котика" in massage.text:
+            bot.send_photo(massage.chat.id, pic)
+            cats_counter += 1
+        else:
+            values(massage)
 
 
 @bot.message_handler(content_types=['text'])
